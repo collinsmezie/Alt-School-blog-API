@@ -6,3 +6,4 @@
 ## Link to [UML Here](https://lucid.app/lucidchart/ed1e2be9-c5e6-4766-b212-27566feeb9ea/edit?invitationId=inv_3af95dc5-1f2d-4f44-9f80-11e19e18b99b&page=0_0#) for API design 
 
 
+### Base URL - https://alt-school-blog-api-9s2f.onrender.com/
