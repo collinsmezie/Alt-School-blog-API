@@ -6,15 +6,19 @@ const UserModel = require('../models/users');
 
 
 passport.use(
-    new JWTstrategy (
+    new JWTstrategy(
         {
-        secretOrKey: process.env.JWT_SECRET,
-        // jwtFromRequest: ExtractJWT.fromUrlQueryParameter('secret_token')
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
-        
+            secretOrKey: process.env.JWT_SECRET,
+            jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
         },
         async (token, done) => {
             try {
+                // Check if the token is expired
+                if (Date.now() >= token.exp * 1000) {
+                    return done(null, false, { message: 'Token expired' });
+                }
+                
+                // Token is valid, return the user
                 return done(null, token.user);
             } catch (error) {
                 done(error);
@@ -59,13 +63,17 @@ passport.use(
     'signup',
     new LocalStrategy(
         {
+
             usernameField: 'email',
-            passwordField: 'password'
+            passwordField: 'password',
+            passReqToCallback: true
+
         },
-        async (email, password, done) => {
+        async (req, email, password, done) => {
+            const { first_name, last_name } = req.body;
             try {
                 console.log("IN PASSPORT SIGNUP")
-                const user = await UserModel.create({ email, password });
+                const user = await UserModel.create({ first_name, last_name, email, password });
                 return done(null, user);
             } catch (error) {
                 done(error);

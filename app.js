@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 4000;
 const bodyParser = require('body-parser');
-const booksRouter = require('./routes/books');
+const blogsRouter = require('./routes/blogs');
 const cors = require('cors');
 const authRoute = require('./routes/auth');
 const connectDB = require('./utils/dbConnect');
@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Middleware for authentication
 app.use('/', authRoute);
-app.use('/api', booksRouter);
+app.use('/api', blogsRouter);
 
 
 // Middleware for error handling

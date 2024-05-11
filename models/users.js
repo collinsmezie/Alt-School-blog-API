@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
+
+    first_name: {
+        type: String,
+        required: [true, 'Please enter a first name'],
+        trim: true
+    },
+
+    last_name: {
+        type: String,
+        required: [true, 'Please enter a last name'],
+        trim: true
+    },
     
     email: {
         type: String,
@@ -34,6 +46,6 @@ userSchema.methods.isValidPassword = async function(password) {
     return compare;
 };
 
-const UserModel = mongoose.model('JwtTestUser', userSchema);
+const UserModel = mongoose.model('Alt_School_User', userSchema);
 
 module.exports = UserModel;
