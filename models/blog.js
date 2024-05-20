@@ -14,10 +14,11 @@ const blogSchema = new mongoose.Schema({
         required: true
     },
 
-    tags:{
-        type: String,
-        required: true
-    },
+    tags: {
+        type: [{ type: String, trim: true }], // array of strings
+        required: true,
+        validate: [arrayNotEmpty, 'Tags cannot be empty']
+      },
 
     author: {
 
@@ -54,13 +55,22 @@ const blogSchema = new mongoose.Schema({
         required: true
     },
 
-    timestamp: {
+    created_at: {
         type: String,
         default: getCurrentUTCTime,
         required: true
+    },
+
+    updated_at: {
+        type: String
     }
 
 });
+
+function arrayNotEmpty(array) {
+    return array && array.length > 0;
+}
+    
 
 
 const Blog = mongoose.model('Alt_School_Blog', blogSchema);

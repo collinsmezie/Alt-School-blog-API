@@ -6,10 +6,14 @@ const getCurrentUTCTime = require('../utils/UTCTime');
 
 
 // Get all published blogs: 
-//pagination(page and limit query options) and search(author and title query options)
+//pagination - page and limit query options
+//Search by Author, Title or Tags query options
 //sort by timestamp, reading time and read count
+// Full endpoint: your-host/api/blogs?page=1&limit=20&author=John+Doe&sortBy=read_count
+// localhost:4000/api/blogs?page=1&limit=20&tags=cat
 async function getAllPublishedBlogs(req, res) {
-    const { page = 1, limit = 20, author, title, sortBy } = req.query; // default values for page, limit, author, title, and sortBy
+    // default values for page, limit, author, title, sortBy, and tags
+    const { page = 1, limit = 20, author, title, sortBy, tags } = req.query;
     try {
         const query = { state: 'published' };
 
@@ -23,6 +27,12 @@ async function getAllPublishedBlogs(req, res) {
         // If title query parameter is provided, search for blogs by title
         if (title) {
             query.title = { $regex: title, $options: 'i' }; // add title filter if provided
+        }
+
+        // If tags query parameter is provided, search for blogs by tags
+        if (tags) {
+            const tagArray = tags.split(','); // split tags by comma
+            query.tags = { $in: tagArray }; // add tag filter if provided
         }
 
         // Define the sort criteria based on the sortBy query parameter
@@ -53,8 +63,11 @@ async function getAllPublishedBlogs(req, res) {
     }
 }
 
-// Get all blogs for a user: pagination(page query option)
-//filter by state query option(published or draft)
+// Get all blogs by a user: 
+// Pagination(page query option)
+// Filter by state query option (published or draft)
+//Provide author Id to this endpoint to get blogs by author
+//Full Endpoint format: your-host-here/api/blogs/authorId/blogs?state=published&page=1
 async function getAllBlogsByUserId(req, res) {
     try {
         const userId = req.user._id;
@@ -82,7 +95,7 @@ async function getAllBlogsByUserId(req, res) {
             query.state = state;
         }
 
-        const limit = 20;
+        const limit = 3;
         const skip = (page - 1) * limit;
         const blogs = await Blog.find(query).skip(skip).limit(limit).exec();
     
@@ -93,8 +106,19 @@ async function getAllBlogsByUserId(req, res) {
         }
 
         const blogPosts = serializeBlogs(blogs);
+        const totalCount = await Blog.countDocuments(query); // Get total count of published blogs based on query
 
-        res.json({ LoggedIn_User: userInfo, blogPosts });
+
+        res.json({ 
+            LoggedIn_User: userInfo, 
+            blogPosts,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -138,15 +162,14 @@ async function createBlog(req, res) {
             email: user.email
         }
 
-        
         const newBlogPost = new Blog({
             ...req.body,
+            state: req.body.state ? req.body.state : 'draft',
             author: {
                 name: user.first_name + " " + user.last_name,
                 id: userId,
             },
-            reading_time: calculateReadingTime(req.body.body),
-            timestamp: getCurrentUTCTime()
+            reading_time: calculateReadingTime(req.body.body)
         });
 
         if (!newBlogPost) {
@@ -241,7 +264,7 @@ async function editBlogByTitle(req, res) {
         const updateFields = {
             ...req.body,
             reading_time: req.body.body ? calculateReadingTime(req.body.body) : undefined,
-            timestamp: getCurrentUTCTime()  
+            updated_at: getCurrentUTCTime()  
         } // Fields to update sent in the request body
 
         console.log(req.body)

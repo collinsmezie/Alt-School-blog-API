@@ -8,7 +8,7 @@ const isBlogAuthor = require('../middlewares/authorization/isBlogAuthor');
 const authenticateJWT = passport.authenticate('jwt', { session: false })
 
 blogsRouter.get('/blogs', BlogController.getAllPublishedBlogs);
-blogsRouter.get('/blogs/:title', BlogController.getPublishedBlogByTitle);
+blogsRouter.get('/blogs/:title/get', BlogController.getPublishedBlogByTitle);
 blogsRouter.get('/blogs/:authorId', authenticateJWT, isBlogAuthor, BlogController.getAllBlogsByUserId);
 blogsRouter.post('/blogs', authenticateJWT, BlogController.createBlog);
 blogsRouter.put('/blogs/:title/publish', authenticateJWT, isBlogOwner, BlogController.publishBlogByTitle);

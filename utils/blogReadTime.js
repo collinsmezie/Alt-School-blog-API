@@ -1,9 +1,9 @@
 function calculateReadingTime(content, options = {}) {
     // Default options
     const defaultOptions = {
-        averageWordsPerMinute: 50, // Average reading speed in words per minute
+        averageWordsPerMinute: 45, // Average reading speed in words per minute
         specialFormattingFactor: 1.2, // Factor to adjust for special formatting (e.g., headings, images)
-        userReadingSpeed: 15 // Optionally, allow the user to specify their reading speed
+        userReadingSpeed: 14 // Optionally, allow the user to specify their reading speed
     };
 
     // Merge options with defaults
