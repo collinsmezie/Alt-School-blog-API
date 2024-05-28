@@ -7,13 +7,13 @@ const getCurrentUTCTime = require('../utils/UTCTime');
 
 // Get all published blogs: 
 //pagination - page and limit query options
-//Search by Author, Title or Tags query options
+//Search/Filter by Author, Title or Tags query options
 //sort by timestamp, reading time and read count
 // Full endpoint: your-host/api/blogs?page=1&limit=20&author=John+Doe&sortBy=read_count
 // localhost:4000/api/blogs?page=1&limit=20&tags=cat
 async function getAllPublishedBlogs(req, res) {
     // default values for page, limit, author, title, sortBy, and tags
-    const { page = 1, limit = 20, author, title, sortBy, tags } = req.query;
+    const { page = 0, limit = 0, author, title, sortBy, tags } = req.query;
     try {
         const query = { state: 'published' };
 
@@ -78,7 +78,8 @@ async function getAllBlogsByUserId(req, res) {
             return res.status(400).json({ error: 'Bad request - No author id provided' });
         }
 
-        const user = await UserModel.findById(userId).exec();
+        // const user = await UserModel.findById(userId).exec();
+        const user = await UserModel.findById(userId)
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -113,7 +114,7 @@ async function getAllBlogsByUserId(req, res) {
             LoggedIn_User: userInfo, 
             blogPosts,
             pagination: {
-                page,
+                page: parseInt(page),
                 limit,
                 totalCount,
                 totalPages: Math.ceil(totalCount / limit)
