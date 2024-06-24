@@ -6,11 +6,16 @@ const bodyParser = require('body-parser');
 const blogsRouter = require('./routes/blogs');
 const cors = require('cors');
 const authRoute = require('./routes/auth');
+const logger = require('./logger/logger');
+const httpLogger = require('./logger/httpLogger');
 const connectDB = require('./utils/dbConnect');
 require('./authentication/auth');
 
 // Connect to database
 connectDB();
+
+// Middleware to log HTTP requests
+app.use(httpLogger);
 
 // Middleware to allow cross-origin requests
 app.use(cors());
@@ -27,6 +32,7 @@ app.use('/api', blogsRouter);
 
 // Middleware for error handling
 app.use((err, req, res, next) => {
+  logger.error(err.message);
   res.status(err.status || 500);
   res.json({ error: err });
 });
@@ -34,6 +40,7 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  logger.info(`Server running on port ${port}`);
 });
 
 
